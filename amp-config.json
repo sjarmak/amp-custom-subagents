@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "custom-subagents": {
+      "command": "node",
+      "args": ["--loader", "tsx", "/Users/sjarmak/custom-subagent/src/mcp-server.ts"]
+    }
+  }
+}

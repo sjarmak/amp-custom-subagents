@@ -1,0 +1,29 @@
+{
+  "name": "amp-custom-subagents",
+  "version": "1.0.0",
+  "description": "Example project demonstrating custom named subagents with Amp SDK",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "mcp": "tsx src/mcp-server.ts",
+    "example:test-runner": "tsx src/examples/test-runner-example.ts",
+    "example:migration": "tsx src/examples/migration-example.ts",
+    "example:security": "tsx src/examples/security-example.ts"
+  },
+  "keywords": ["amp", "subagents", "ai", "sdk"],
+  "author": "",
+  "license": "MIT",
+  "bin": {
+    "custom-subagents-mcp": "./src/mcp-server.ts"
+  },
+  "dependencies": {
+    "@sourcegraph/amp-sdk": "latest",
+    "@modelcontextprotocol/sdk": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "amp.permissions": [
+    {
+      "tool": "Read",
+      "action": "allow"
+    },
+    {
+      "tool": "Write",
+      "matches": {
+        "path": "**/*.md"
+      },
+      "action": "ask"
+    },
+    {
+      "tool": "Write",
+      "matches": {
+        "path": "**/docs/**"
+      },
+      "action": "ask"
+    },
+    {
+      "tool": "Write",
+      "matches": {
+        "path": "**/src/**"
+      },
+      "action": "reject"
+    }
+  ]
+}
