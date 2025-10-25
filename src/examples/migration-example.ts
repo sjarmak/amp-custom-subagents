@@ -2,7 +2,7 @@ import { runSubagent } from '../index.js'
 import { subagents } from '../subagents.js'
 
 async function main() {
-  console.log('📦 Migration Planner Example\n')
+  console.log('Migration Planner Example\n')
 
   try {
     const result = await runSubagent(
@@ -18,10 +18,10 @@ async function main() {
       }
     )
 
-    console.log('\n📋 Migration Plan:')
+    console.log('\nMigration Plan:')
     console.log(result)
   } catch (error) {
-    console.error('❌ Error:', error)
+    console.error('Error:', error)
     process.exit(1)
   }
 }

@@ -16,9 +16,9 @@ if (args.length < 2) {
 const [name, goal] = args
 const cwd = args[2] || process.cwd()
 
-console.log(`🤖 Running subagent: ${name}`)
-console.log(`📋 Goal: ${goal}`)
-console.log(`📁 Working directory: ${cwd}`)
+console.log(`Running subagent: ${name}`)
+console.log(`Goal: ${goal}`)
+console.log(`Working directory: ${cwd}`)
 console.log('─'.repeat(80))
 
 try {
@@ -32,10 +32,10 @@ try {
   })
 
   console.log('─'.repeat(80))
-  console.log('✅ Subagent completed')
-  console.log('\n📊 Result:')
+  console.log('Subagent completed')
+  console.log('\nResult:')
   console.log(result)
 } catch (error) {
-  console.error('❌ Error:', error instanceof Error ? error.message : error)
+  console.error('Error:', error instanceof Error ? error.message : error)
   process.exit(1)
 }

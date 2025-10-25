@@ -19,10 +19,10 @@ async function main() {
       }
     )
 
-    console.log('\n🔍 Security Report:')
+    console.log('\nSecurity Report:')
     console.log(result)
   } catch (error) {
-    console.error('❌ Error:', error)
+    console.error('Error:', error)
     process.exit(1)
   }
 }

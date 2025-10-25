@@ -2,7 +2,7 @@
 
 This project demonstrates how to emulate **named custom subagents** (similar to Claude's subagent feature) using Amp's SDK. Instead of pre-registering subagents, this pattern allows you to dynamically define and invoke specialized AI agents with their own system prompts, tool permissions, and MCP configurations.
 
-## 🎯 Overview
+## Overview
 
 Custom subagents let you:
 - **Define specialized roles** with specific system prompts
@@ -10,7 +10,7 @@ Custom subagents let you:
 - **Isolate context** for focused task execution
 - **Reuse agent patterns** across different projects
 
-## 📦 Installation
+## Installation
 
 ```bash
 # Clone or download this project
@@ -24,14 +24,14 @@ npm install
 npm install -g .
 ```
 
-## ✅ Prerequisites
+## Prerequisites
 
 - **Node.js** 18+ or 20+ (recommended)
 - **Amp SDK** (installed automatically as dependency)
 - **TypeScript** 5.0+ (for development)
 - **MCP SDK** (for MCP server functionality)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Using in Amp Conversations (MCP Server)
 
@@ -91,7 +91,7 @@ const result = await runSubagent(
 console.log(result)
 ```
 
-## 🔧 How It Works
+## How It Works
 
 ### 1. Define Subagent Registry
 
@@ -150,7 +150,7 @@ createPermission('Write', 'deny')
 createPermission('Bash', 'allow', { matches: { cmd: 'npm test*' } })
 ```
 
-## 🔌 MCP Integration
+## MCP Integration
 
 This project includes an MCP server that exposes all subagents as tools Amp can use directly.
 
@@ -173,7 +173,7 @@ You: Create migration plan with migration-planner
 Amp: [invokes subagent_migration-planner tool]
 ```
 
-## 📚 Built-in Subagents
+## Built-in Subagents
 
 ### test-runner
 Runs tests and stabilizes failures without refactoring.
@@ -230,7 +230,7 @@ Improves code quality without changing behavior.
 - Ask before any write operation
 - Run tests and build commands
 
-## 🛠️ Creating Custom Subagents
+## Creating Custom Subagents
 
 ### Step 1: Define Your Subagent
 
@@ -271,7 +271,7 @@ const result = await runSubagent(
 )
 ```
 
-## 🎛️ Advanced Configuration
+## Advanced Configuration
 
 ### MCP Integration
 
@@ -316,7 +316,7 @@ await runSubagent('my-agent', 'task', subagents, {
 })
 ```
 
-## 🔐 Permission Patterns
+## Permission Patterns
 
 ### Read-Only Analyst
 ```typescript
@@ -345,7 +345,7 @@ permissions: [
 ]
 ```
 
-## 📖 API Reference
+## API Reference
 
 ### `runSubagent(name, userGoal, registry, options?)`
 
@@ -374,7 +374,7 @@ Creates a permission rule for tool access control.
     - `path`: File path pattern (for Read/Write)
     - `cmd`: Command pattern (for Bash)
 
-## 🔗 Compatibility
+## Compatibility
 
 This implementation aligns with:
 - [Amp SDK Documentation](https://ampcode.com/manual)
@@ -382,7 +382,7 @@ This implementation aligns with:
 - MCP configuration standards
 - Amp's subagent execution model
 
-## 📝 Examples
+## Examples
 
 ### Programmatic Examples
 
@@ -404,7 +404,7 @@ npm run mcp
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | npm run mcp
 ```
 
-## 🤝 Contributing
+## Contributing
 
 To add new subagents:
 1. Define in `src/subagents.ts`
@@ -412,7 +412,7 @@ To add new subagents:
 3. Add npm script to `package.json`
 4. Update documentation as needed
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -443,18 +443,18 @@ Solution:
 - Check Amp settings.json configuration
 - Ensure Node.js and dependencies are installed
 
-## 📚 Documentation
+## Documentation
 
 - [API Reference](API.md) - Complete API documentation
 - [Architecture Guide](ARCHITECTURE.md) - Technical design and patterns
 - [Setup Guide](SETUP.md) - Installation and configuration
 
-## 📚 External Resources
+## External Resources
 
 - [Amp SDK Documentation](https://ampcode.com/manual)
 - [MCP Protocol Specification](https://modelcontextprotocol.io)
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
 
-## 📄 License
+## License
 
 MIT
