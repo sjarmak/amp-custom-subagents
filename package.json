@@ -9,7 +9,10 @@
     "mcp": "tsx src/mcp-server.ts",
     "example:test-runner": "tsx src/examples/test-runner-example.ts",
     "example:migration": "tsx src/examples/migration-example.ts",
-    "example:security": "tsx src/examples/security-example.ts"
+    "example:security": "tsx src/examples/security-example.ts",
+    "example:documentation": "tsx src/examples/documentation-example.ts",
+    "example:refactor": "tsx src/examples/refactor-example.ts",
+    "example:custom": "tsx src/examples/custom-agent-example.ts"
   },
   "keywords": ["amp", "subagents", "ai", "sdk"],
   "author": "",

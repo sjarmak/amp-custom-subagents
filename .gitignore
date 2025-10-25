@@ -3,3 +3,9 @@ dist/
 *.log
 .env
 .DS_Store
+.tmp/
+*.tsbuildinfo
+.vscode/
+.idea/
+coverage/
+.nyc_output/

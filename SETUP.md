@@ -35,11 +35,13 @@ npm install
       "args": [
         "--loader",
         "tsx",
-        "/Users/sjarmak/custom-subagent/src/mcp-server.ts"
+        "/absolute/path/to/custom-subagent/src/mcp-server.ts"
       ]
     }
   }
 }
+
+# Replace /absolute/path/to/ with your actual project path
 ```
 
 ### Option 3: Using npx
@@ -51,11 +53,13 @@ npm install
   "amp.mcpServers": {
     "custom-subagents": {
       "command": "npx",
-      "args": ["-y", "custom-subagents-mcp"],
-      "cwd": "/Users/sjarmak/custom-subagent"
+      "args": ["-y", "tsx", "src/mcp-server.ts"],
+      "cwd": "/absolute/path/to/custom-subagent"
     }
   }
 }
+
+# Replace /absolute/path/to/ with your actual project path
 ```
 
 ## Using in Amp Conversations
@@ -256,6 +260,67 @@ Expected output should include all subagent tools:
 2. Ask Amp: "What MCP tools are available?"
 3. Confirm you see the custom subagent tools listed
 4. Try invoking one: "Use the documentation-writer to analyze this project"
+
+## Configuration Examples by Editor
+
+### JetBrains IDEs (IntelliJ, WebStorm, etc.)
+
+Add to IDE settings under **Tools > MCP Servers**:
+
+```json
+{
+  "custom-subagents": {
+    "command": "custom-subagents-mcp"
+  }
+}
+```
+
+### Standalone Amp Desktop
+
+Edit `~/.amp/config.json`:
+
+```json
+{
+  "mcpServers": {
+    "custom-subagents": {
+      "command": "custom-subagents-mcp"
+    }
+  }
+}
+```
+
+## Performance Tips
+
+1. **Global Installation** - Faster startup than npx or local tsx
+2. **Working Directory** - Set `cwd` to avoid path resolution overhead
+3. **Timeouts** - Add timeouts for long-running agents to prevent hanging
+4. **Message Streaming** - Use `onMessage` for real-time feedback on long tasks
+
+## Common Use Cases
+
+### Use Case 1: Pre-commit Testing
+```
+You: Run test-runner to validate my changes before committing
+Amp: [executes tests and reports results]
+```
+
+### Use Case 2: Architecture Planning
+```
+You: Use migration-planner to analyze migrating from JavaScript to TypeScript
+Amp: [generates detailed migration plan with steps and risks]
+```
+
+### Use Case 3: Security Review
+```
+You: Run security-auditor on the authentication module
+Amp: [scans code and reports vulnerabilities]
+```
+
+### Use Case 4: Documentation Updates
+```
+You: Have documentation-writer update the API docs after recent changes
+Amp: [analyzes changes and updates documentation]
+```
 
 ## Next Steps
 

@@ -44,7 +44,8 @@ interface RunSubagentOptions {
 
 - `Error` - If the subagent name is not found in the registry
 - `Error` - If no result is received from the subagent
-- `Error` - If execution times out (when timeout is set)
+- `AbortError` - If execution times out (when timeout is set)
+- `Error` - If the subagent execution encounters an error
 
 #### Examples
 

@@ -13,8 +13,8 @@ Custom subagents let you:
 ## Installation
 
 ```bash
-# Clone or download this project
-git clone <repository-url>
+# Clone the repository
+git clone https://github.com/sjarmak/amp-custom-subagents
 cd custom-subagent
 
 # Install dependencies
@@ -389,10 +389,15 @@ This implementation aligns with:
 Run pre-built examples:
 
 ```bash
-npm run example:test-runner    # Test execution agent
-npm run example:migration      # Migration planning agent
-npm run example:security       # Security audit agent
+npm run example:test-runner      # Test execution agent
+npm run example:migration        # Migration planning agent
+npm run example:security         # Security audit agent
+npm run example:documentation    # Documentation writer
+npm run example:refactor         # Refactor assistant
+npm run example:custom           # Custom subagent creation
 ```
+
+See [EXAMPLES.md](EXAMPLES.md) for detailed usage examples and patterns.
 
 ### MCP Server Examples
 
@@ -443,17 +448,74 @@ Solution:
 - Check Amp settings.json configuration
 - Ensure Node.js and dependencies are installed
 
+## Quick Reference
+
+### Command Summary
+
+```bash
+# Install globally
+npm install -g .
+
+# Run subagent via CLI
+npm run dev <subagent-name> "<goal>"
+
+# Run examples
+npm run example:test-runner
+npm run example:migration
+npm run example:security
+
+# Start MCP server
+npm run mcp
+```
+
+### Available Subagents
+
+| Subagent | Purpose | Permissions |
+|----------|---------|-------------|
+| `test-runner` | Run and fix tests | Read, ask before write, test commands only |
+| `migration-planner` | Create migration plans | Read-only, no code changes |
+| `security-auditor` | Security vulnerability scanning | Read-only, audit commands only |
+| `documentation-writer` | Generate/update docs | Read, ask before writing docs |
+| `refactor-assistant` | Improve code quality | Read, ask before write, build/test commands |
+
+### Permission Patterns
+
+```typescript
+// Allow unrestricted
+createPermission('Read', 'allow')
+
+// Ask before allowing
+createPermission('Write', 'ask')
+
+// Deny silently
+createPermission('Bash', 'deny')
+
+// Pattern matching
+createPermission('Write', 'ask', { matches: { path: '**/*.test.*' } })
+createPermission('Bash', 'allow', { matches: { cmd: 'npm test*' } })
+```
+
 ## Documentation
 
+- [Setup Guide](SETUP.md) - Installation and configuration
 - [API Reference](API.md) - Complete API documentation
 - [Architecture Guide](ARCHITECTURE.md) - Technical design and patterns
-- [Setup Guide](SETUP.md) - Installation and configuration
+- [Usage Examples](EXAMPLES.md) - Practical examples and use cases
 
 ## External Resources
 
 - [Amp SDK Documentation](https://ampcode.com/manual)
 - [MCP Protocol Specification](https://modelcontextprotocol.io)
 - [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+
+## Contributing
+
+Contributions welcome! To add new subagents:
+
+1. Define in [src/subagents.ts](src/subagents.ts)
+2. Create example in `src/examples/`
+3. Add npm script to [package.json](package.json)
+4. Update [EXAMPLES.md](EXAMPLES.md) with usage patterns
 
 ## License
 

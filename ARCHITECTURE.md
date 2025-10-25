@@ -2,6 +2,65 @@
 
 This document explains the technical architecture, design patterns, and implementation decisions for the custom subagent system.
 
+## System Architecture
+
+```mermaid
+graph TB
+    subgraph "User Interface Layer"
+        CLI[CLI Interface<br/>src/cli.ts]
+        MCP[MCP Server<br/>src/mcp-server.ts]
+        API[Programmatic API<br/>runSubagent]
+    end
+
+    subgraph "Core Layer"
+        Runner[Subagent Runner<br/>src/index.ts]
+        Registry[Subagent Registry<br/>src/subagents.ts]
+        Perms[Permission System<br/>createPermission]
+    end
+
+    subgraph "Execution Layer"
+        AmpSDK[Amp SDK<br/>execute]
+        Tools[Amp Tools]
+        MCPServers[MCP Servers]
+    end
+
+    subgraph "Built-in Subagents"
+        TestRunner[test-runner]
+        Migration[migration-planner]
+        Security[security-auditor]
+        Docs[documentation-writer]
+        Refactor[refactor-assistant]
+    end
+
+    CLI --> Runner
+    MCP --> Runner
+    API --> Runner
+    
+    Runner --> Registry
+    Runner --> Perms
+    Runner --> AmpSDK
+    
+    Registry --> TestRunner
+    Registry --> Migration
+    Registry --> Security
+    Registry --> Docs
+    Registry --> Refactor
+    
+    AmpSDK --> Tools
+    AmpSDK --> MCPServers
+    
+    Tools --> Read[Read Files]
+    Tools --> Write[Write Files]
+    Tools --> Bash[Execute Commands]
+```
+
+The system is organized in four layers:
+
+1. **User Interface Layer** - Multiple entry points (CLI, MCP, API)
+2. **Core Layer** - Subagent execution logic and registry
+3. **Execution Layer** - Amp SDK integration and tool access
+4. **Subagent Layer** - Pre-built specialized agents
+
 ## Project Structure
 
 ```
@@ -108,36 +167,52 @@ For: test-runner (only test commands)
 ## Future Enhancements
 
 ### 1. Subagent Composition
+Allow subagents to coordinate other subagents for complex workflows:
 ```typescript
 const compositeAgent = {
   system: 'You coordinate multiple subagents',
   subagents: ['test-runner', 'migration-planner'],
+  permissions: [
+    createPermission('Task', 'allow'), // Allow spawning subagents
+  ]
 }
 ```
 
 ### 2. Stateful Subagents
+Enable subagents to maintain state across invocations:
 ```typescript
 const statefulAgent = {
   state: new Map(),
   onResult: (result) => state.set('lastRun', result),
+  onStart: () => state.get('lastRun'), // Resume from previous state
 }
 ```
 
 ### 3. Parallel Execution
+Run multiple subagents concurrently for improved performance:
 ```typescript
-await Promise.all([
-  runSubagent('test-runner', goal1),
-  runSubagent('migration-planner', goal2),
+const results = await Promise.all([
+  runSubagent('test-runner', goal1, registry),
+  runSubagent('migration-planner', goal2, registry),
 ])
 ```
 
-### 4. Approval Workflows
+### 4. Custom Approval Workflows
+Implement advanced permission handling with custom approval logic:
 ```typescript
 permissions: [
-  createPermission('Write', 'delegate', { 
-    handler: async (tool) => await approvalService.check(tool) 
+  createPermission('Write', 'ask', { 
+    validator: async (tool) => await approvalService.check(tool) 
   }),
 ]
+```
+
+### 5. Result Streaming
+Stream partial results back to the caller for long-running tasks:
+```typescript
+for await (const update of runSubagentStreaming('migration-planner', goal)) {
+  console.log('Progress:', update)
+}
 ```
 
 ## Security Considerations
@@ -303,6 +378,79 @@ Connect external MCP servers to subagents:
   mcp: {
     servers: {
       'postgres': {
+        command: 'npx',
+        args: ['-y', '@modelcontextprotocol/server-postgres'],
+        env: { DATABASE_URL: process.env.DATABASE_URL },
+      }
+    }
+  }
+}
+```
+
+## Real-World Examples
+
+### Example 1: CI/CD Integration
+
+```typescript
+// ci-validation subagent for pre-merge checks
+'ci-validator': {
+  system: `You validate code before CI/CD pipeline execution.
+Rules:
+- Run linting and type checks
+- Execute all tests
+- Verify build succeeds
+- Check for security vulnerabilities
+- Report pass/fail status`,
+  permissions: [
+    createPermission('Read', 'allow'),
+    createPermission('Bash', 'allow', { matches: { cmd: 'npm run*' } }),
+    createPermission('Bash', 'allow', { matches: { cmd: 'pnpm*' } }),
+    createPermission('Write', 'deny'),
+  ],
+}
+```
+
+### Example 2: Code Review Assistant
+
+```typescript
+// code-reviewer subagent for automated reviews
+'code-reviewer': {
+  system: `You perform automated code reviews.
+Rules:
+- Check code quality and best practices
+- Identify potential bugs and edge cases
+- Verify test coverage
+- Suggest improvements
+- Never modify code, only provide feedback`,
+  permissions: [
+    createPermission('Read', 'allow'),
+    createPermission('Bash', 'allow', { matches: { cmd: 'git diff*' } }),
+    createPermission('Bash', 'allow', { matches: { cmd: 'npm run coverage*' } }),
+    createPermission('Write', 'deny'),
+  ],
+}
+```
+
+### Example 3: Database Migration Helper
+
+```typescript
+// db-migrator subagent with database MCP server
+'db-migrator': {
+  system: `You help with database migrations.
+Rules:
+- Generate migration scripts
+- Validate schema changes
+- Check for breaking changes
+- Create rollback scripts
+- Test migrations in dry-run mode`,
+  permissions: [
+    createPermission('Read', 'allow'),
+    createPermission('Write', 'ask', { matches: { path: '**/migrations/**' } }),
+    createPermission('Bash', 'ask', { matches: { cmd: '*migrate*' } }),
+  ],
+  mcp: {
+    servers: {
+      'database': {
         command: 'npx',
         args: ['-y', '@modelcontextprotocol/server-postgres'],
         env: { DATABASE_URL: process.env.DATABASE_URL },
