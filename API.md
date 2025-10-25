@@ -31,6 +31,7 @@ async function runSubagent(
 ```typescript
 interface RunSubagentOptions {
   cwd?: string                  // Working directory (default: process.cwd())
+  context?: string              // Focused conversation context (files, intent, project details)
   onMessage?: (msg: any) => void // Message streaming callback
   timeout?: number               // Execution timeout in milliseconds
 }
@@ -76,6 +77,29 @@ const result = await runSubagent(
         console.log('[Subagent]:', msg.text)
       }
     }
+  }
+)
+```
+
+**With conversation context:**
+```typescript
+const context = `
+User is working on a Next.js project with TypeScript.
+Relevant files:
+- package.json uses "type": "commonjs"
+- src/utils/db.js has require() statements
+- src/api/routes.ts mixes import and require
+User wants to modernize to ESM for better tree-shaking.
+`
+
+const result = await runSubagent(
+  'migration-planner',
+  'Create a step-by-step migration plan',
+  subagents,
+  {
+    cwd: '/path/to/project',
+    context,
+    timeout: 120000
   }
 )
 ```
@@ -251,6 +275,7 @@ Configuration options for subagent execution.
 ```typescript
 interface RunSubagentOptions {
   cwd?: string                  // Working directory
+  context?: string              // Focused conversation context
   onMessage?: (msg: any) => void // Message handler
   timeout?: number               // Timeout in milliseconds
 }

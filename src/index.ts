@@ -10,6 +10,7 @@ export type SubagentRegistry = Record<string, NamedSubagent>
 
 export interface RunSubagentOptions {
   cwd?: string
+  context?: string
   onMessage?: (msg: any) => void
   timeout?: number
 }
@@ -25,13 +26,18 @@ export async function runSubagent(
     throw new Error(`Unknown subagent: ${name}. Available: ${Object.keys(registry).join(', ')}`)
   }
 
-  const prompt =
-    `${agent.system}\n\n` +
+  const { cwd = process.cwd(), context, onMessage, timeout } = options
+
+  let prompt = agent.system + '\n\n'
+  
+  if (context) {
+    prompt += `CONVERSATION CONTEXT:\n${context}\n\n`
+  }
+  
+  prompt +=
     `Main agent: spawn a subagent with this system role and have it complete the goal:\n` +
     `GOAL: ${userGoal}\n\n` +
     `Return a compact result to the main thread.`
-
-  const { cwd = process.cwd(), onMessage, timeout } = options
 
   const controller = new AbortController()
   let timeoutId: NodeJS.Timeout | undefined
