@@ -10,6 +10,35 @@ Custom subagents let you:
 - **Isolate context** for focused task execution
 - **Reuse agent patterns** across different projects
 
+## Key Concepts
+
+### Stateless Execution
+
+Each subagent invocation is **completely stateless**:
+- No memory between calls
+- No shared state across invocations
+- Fresh execution context every time
+
+### Context Passing
+
+Instead of persistent state, the **main agent passes focused context**:
+- Extract relevant conversation history
+- Include pertinent file information
+- Provide project-specific details
+- Pass via `context` parameter
+
+**Example:**
+```typescript
+const context = `
+User is working on Next.js project with TypeScript.
+Relevant files: package.json, src/utils/db.ts
+User wants to migrate from CommonJS to ESM.
+`
+runSubagent('migration-planner', 'Create migration plan', subagents, { context })
+```
+
+This gives the subagent focused background without the full conversation history.
+
 ## Installation
 
 ```bash
@@ -31,9 +60,54 @@ npm install -g .
 - **TypeScript** 5.0+ (for development)
 - **MCP SDK** (for MCP server functionality)
 
+## Usage Modes
+
+There are three ways to use custom subagents, each suited for different scenarios:
+
+### 1. MCP Integration (Amp Conversations)
+
+**Best for:** Natural language interaction, letting Amp decide when to use subagents
+
+The main agent (Amp) automatically:
+- Interprets natural language requests
+- Decides which subagent to invoke
+- Extracts and passes relevant context
+- Receives structured JSON results
+
+**When to use:**
+- Working within Amp conversations
+- Want autonomous subagent selection
+- Need context automatically extracted from conversation
+
+### 2. CLI (Direct Invocation)
+
+**Best for:** Scripting, automation, manual testing
+
+Requires explicit command syntax with structured arguments.
+
+**When to use:**
+- Running subagents from shell scripts
+- Testing subagent behavior
+- Automation pipelines
+- Direct invocation outside of Amp
+
+### 3. Programmatic API
+
+**Best for:** Building custom workflows, integrating into your own tools
+
+Full control over execution with TypeScript/JavaScript API.
+
+**When to use:**
+- Custom agent orchestration
+- Building tools that use subagents
+- Advanced workflows requiring programmatic control
+- Testing and development
+
+---
+
 ## Quick Start
 
-### Using in Amp Conversations (MCP Server)
+### Mode 1: Using in Amp Conversations (MCP Server)
 
 The easiest way to use these subagents is directly in Amp conversations:
 
@@ -58,7 +132,10 @@ npm install -g .
 
 See [SETUP.md](SETUP.md) for detailed configuration options.
 
-### Using the CLI
+**How context works:**
+When you chat with Amp, it automatically extracts relevant context (files mentioned, user intent, project details) and passes it to the subagent via the `context` parameter.
+
+### Mode 2: Using the CLI
 
 ```bash
 # Run the test-runner subagent
@@ -71,24 +148,37 @@ npm run dev migration-planner "Plan migration from CommonJS to ESM"
 npm run dev security-auditor "Audit codebase for security issues"
 ```
 
-### Programmatic Usage
+**Note:** CLI requires explicit goal string. Context is optional via options parameter in code.
+
+### Mode 3: Programmatic Usage
 
 ```typescript
 import { runSubagent } from './src/index.js'
 import { subagents } from './src/subagents.js'
+
+// Example: Main agent extracts context and passes to subagent
+const context = `
+User is debugging test failures in auth module.
+Relevant files: src/auth/login.test.ts, src/auth/login.ts
+Previous attempt: tests passed locally but fail in CI
+`
 
 const result = await runSubagent(
   'test-runner',
   'Run all tests and report results',
   subagents,
   {
+    context,              // Pass focused conversation context
     cwd: process.cwd(),
     onMessage: (msg) => console.log(msg),
     timeout: 60000,
   }
 )
 
-console.log(result)
+// Access structured result
+console.log('Summary:', result.summary)
+console.log('Files changed:', result.filesChanged)
+console.log('Duration:', result.metadata.duration, 'ms')
 ```
 
 ## How It Works
