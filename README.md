@@ -163,14 +163,37 @@ When configured, Amp can access:
 - `subagent_documentation-writer`
 - `subagent_refactor-assistant`
 
+### MCP Response Format
+
+Subagents return structured JSON through MCP:
+
+```json
+{
+  "summary": "Task completion summary",
+  "filesChanged": ["path/to/file1.ts", "path/to/file2.ts"],
+  "transcript": ["execution log line 1", "line 2"],
+  "metadata": {
+    "subagentName": "test-runner",
+    "goal": "Run unit tests",
+    "startTime": "2025-10-27T03:00:00.000Z",
+    "endTime": "2025-10-27T03:01:00.000Z",
+    "duration": 60000
+  }
+}
+```
+
+The main agent can parse this JSON to programmatically access results.
+
 ### Example Amp Conversations
 
 ```
 You: Use the test-runner subagent to fix failing tests
-Amp: [invokes subagent_test-runner tool automatically]
+Amp: [invokes subagent_test-runner tool, receives JSON response]
+     [parses result.filesChanged to see what was modified]
 
 You: Create migration plan with migration-planner
 Amp: [invokes subagent_migration-planner tool]
+     [reads result.summary for the plan]
 ```
 
 ## Built-in Subagents

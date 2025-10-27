@@ -71,21 +71,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       context,
     })
 
-    // Format structured output for the main agent
-    let output = `**Subagent: ${result.metadata.subagentName}**\n\n`
-    output += `**Summary:**\n${result.summary}\n\n`
-    
-    if (result.filesChanged.length > 0) {
-      output += `**Files Modified:**\n${result.filesChanged.map(f => `- ${f}`).join('\n')}\n\n`
-    }
-    
-    output += `**Duration:** ${(result.metadata.duration / 1000).toFixed(2)}s`
-
+    // Return structured JSON for programmatic access by main agent
     return {
       content: [
         {
           type: 'text',
-          text: output,
+          text: JSON.stringify(result, null, 2),
         },
       ],
     }
