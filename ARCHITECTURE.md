@@ -87,9 +87,10 @@ custom-subagent/
 This implementation aligns with Amp's documented features:
 
 ### Subagent Execution Model
-- **Independent Context**: Each subagent runs with isolated context via `execute()` 
+- **Context Passing**: Each subagent receives focused conversation context relevant to its task
+- **Isolated Execution**: Each subagent runs with isolated context via `execute()` (stateless between invocations)
 - **Tool Access**: Subagents have scoped access to Amp tools (Read, Write, Bash, MCP)
-- **Result-Based Communication**: Subagents return results to the main thread (no direct inter-subagent communication)
+- **Structured Output**: Subagents return summary, transcript, file changes, and metadata to the main thread
 
 ### Permission System
 Mirrors Amp's permission rules:
@@ -127,11 +128,12 @@ type SubagentRegistry = Record<string, NamedSubagent>
 
 ### 3. Execution Abstraction
 ```typescript
-runSubagent(name, goal, registry, options)
+runSubagent(name, goal, registry, options): Promise<SubagentResult>
 ```
 - Hides Amp SDK complexity
 - Consistent interface across all subagents
 - Optional callbacks for streaming
+- Returns structured result with summary, transcript, and file changes
 
 ## Permission Philosophy
 

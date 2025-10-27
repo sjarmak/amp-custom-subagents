@@ -32,9 +32,21 @@ try {
   })
 
   console.log('─'.repeat(80))
-  console.log('Subagent completed')
-  console.log('\nResult:')
-  console.log(result)
+  console.log('✅ Subagent completed')
+  console.log('\n📋 Summary:')
+  console.log(result.summary)
+  
+  if (result.filesChanged.length > 0) {
+    console.log('\n📝 Files Modified:')
+    result.filesChanged.forEach(file => console.log(`  - ${file}`))
+  }
+  
+  console.log('\n⏱️  Duration:', (result.metadata.duration / 1000).toFixed(2), 's')
+  
+  if (result.transcript.length > 0) {
+    console.log('\n📜 Full Transcript:')
+    result.transcript.forEach(line => console.log(line))
+  }
 } catch (error) {
   console.error('Error:', error instanceof Error ? error.message : error)
   process.exit(1)

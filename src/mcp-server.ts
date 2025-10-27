@@ -5,8 +5,8 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js'
-import { runSubagent } from './index.ts'
-import { subagents } from './subagents.ts'
+import { runSubagent } from './index.js'
+import { subagents } from './subagents.js'
 
 const server = new Server(
   {
@@ -31,6 +31,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           type: 'string',
           description: 'The task or goal for this subagent to accomplish',
         },
+        context: {
+          type: 'string',
+          description: 'Relevant conversation history or context for the task (optional)',
+        },
         cwd: {
           type: 'string',
           description: 'Working directory (optional, defaults to current directory)',
@@ -51,7 +55,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 
   const subagentName = toolName.replace('subagent_', '')
-  const { goal, cwd } = request.params.arguments as { goal: string; cwd?: string }
+  const { goal, context, cwd } = request.params.arguments as { 
+    goal: string
+    context?: string
+    cwd?: string 
+  }
 
   if (!goal) {
     throw new Error('Missing required argument: goal')
@@ -60,13 +68,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     const result = await runSubagent(subagentName, goal, subagents, {
       cwd: cwd || process.cwd(),
+      context,
     })
+
+    // Format structured output for the main agent
+    let output = `**Subagent: ${result.metadata.subagentName}**\n\n`
+    output += `**Summary:**\n${result.summary}\n\n`
+    
+    if (result.filesChanged.length > 0) {
+      output += `**Files Modified:**\n${result.filesChanged.map(f => `- ${f}`).join('\n')}\n\n`
+    }
+    
+    output += `**Duration:** ${(result.metadata.duration / 1000).toFixed(2)}s`
 
     return {
       content: [
         {
           type: 'text',
-          text: result,
+          text: output,
         },
       ],
     }

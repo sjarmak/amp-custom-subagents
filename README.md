@@ -119,9 +119,9 @@ export const subagents: SubagentRegistry = {
 
 The `runSubagent` function:
 1. Validates the subagent exists
-2. Constructs a prompt with system role + user goal
+2. Constructs a prompt with system role + user goal + optional conversation context
 3. Executes via Amp SDK with scoped permissions
-4. Returns the result
+4. Returns structured result with summary, transcript, file changes, and metadata
 
 ```typescript
 export async function runSubagent(
@@ -129,7 +129,7 @@ export async function runSubagent(
   userGoal: string,
   registry: SubagentRegistry,
   options?: RunSubagentOptions
-): Promise<string>
+): Promise<SubagentResult>
 ```
 
 ### 3. Permission Scoping

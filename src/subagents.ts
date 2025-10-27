@@ -1,4 +1,4 @@
-import { createPermission, type SubagentRegistry } from './index.ts'
+import { createPermission, type SubagentRegistry } from './index.js'
 
 export const subagents: SubagentRegistry = {
   'test-runner': {

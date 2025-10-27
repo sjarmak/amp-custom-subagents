@@ -14,7 +14,7 @@ async function runSubagent(
   userGoal: string,
   registry: SubagentRegistry,
   options?: RunSubagentOptions
-): Promise<string>
+): Promise<SubagentResult>
 ```
 
 #### Parameters
@@ -39,7 +39,22 @@ interface RunSubagentOptions {
 
 #### Returns
 
-`Promise<string>` - The final result message from the subagent
+`Promise<SubagentResult>` - Structured result containing:
+
+```typescript
+interface SubagentResult {
+  summary: string           // Concise summary of what was accomplished
+  transcript: string[]      // Full execution transcript (all text outputs)
+  filesChanged: string[]    // List of files modified during execution
+  metadata: {
+    subagentName: string    // Name of the subagent that executed
+    goal: string            // Original goal provided
+    startTime: string       // ISO timestamp of start
+    endTime: string         // ISO timestamp of completion
+    duration: number        // Duration in milliseconds
+  }
+}
+```
 
 #### Throws
 
@@ -60,7 +75,9 @@ const result = await runSubagent(
   'Run all unit tests',
   subagents
 )
-console.log(result)
+console.log('Summary:', result.summary)
+console.log('Files changed:', result.filesChanged)
+console.log('Duration:', result.metadata.duration, 'ms')
 ```
 
 **With options:**
