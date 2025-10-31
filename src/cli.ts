@@ -5,7 +5,7 @@ import { subagents } from './subagents.js'
 const args = process.argv.slice(2)
 
 if (args.length < 2) {
-  console.error('Usage: npm run dev <subagent-name> "<goal>"')
+  console.error('Usage: npm run dev <subagent-name> "<goal>" [cwd] [timeout-ms]')
   console.error('\nAvailable subagents:')
   Object.keys(subagents).forEach(name => {
     console.error(`  - ${name}`)
@@ -15,15 +15,18 @@ if (args.length < 2) {
 
 const [name, goal] = args
 const cwd = args[2] || process.cwd()
+const timeoutMs = args[3] ? parseInt(args[3], 10) : 600000
 
 console.log(`Running subagent: ${name}`)
 console.log(`Goal: ${goal}`)
 console.log(`Working directory: ${cwd}`)
+console.log(`Timeout: ${(timeoutMs / 1000).toFixed(0)}s`)
 console.log('─'.repeat(80))
 
 try {
   const result = await runSubagent(name, goal, subagents, {
     cwd,
+    timeout: timeoutMs,
     onMessage: (msg) => {
       if (msg.type === 'text') {
         console.log(msg.text)
