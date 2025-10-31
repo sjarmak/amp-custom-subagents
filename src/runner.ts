@@ -1,13 +1,9 @@
-import { execute, createPermission, type MCPConfig } from '@sourcegraph/amp-sdk'
+/**
+ * Enhanced subagent runner with manifest support and tool wiring
+ */
 
-export type NamedSubagent = {
-  system: string
-  description?: string  // Optional: MCP tool description (if not provided, uses first line of system prompt)
-  mcp?: MCPConfig
-  permissions?: ReturnType<typeof createPermission>[]
-}
-
-export type SubagentRegistry = Record<string, NamedSubagent>
+import { execute, type MCPConfig } from '@sourcegraph/amp-sdk'
+import type { SubagentManifest } from './types.js'
 
 export interface RunSubagentOptions {
   cwd?: string
@@ -21,7 +17,7 @@ export interface SubagentResult {
   transcript: string[]
   filesChanged: string[]
   metadata: {
-    subagentName: string
+    subagentId: string
     goal: string
     startTime: string
     endTime: string
@@ -29,26 +25,31 @@ export interface SubagentResult {
   }
 }
 
-export async function runSubagent(
-  name: string,
+/**
+ * Run a subagent from its manifest
+ */
+export async function runSubagentFromManifest(
+  manifest: SubagentManifest,
   userGoal: string,
-  registry: SubagentRegistry,
   options: RunSubagentOptions = {}
 ): Promise<SubagentResult> {
-  const agent = registry[name]
-  if (!agent) {
-    throw new Error(`Unknown subagent: ${name}. Available: ${Object.keys(registry).join(', ')}`)
-  }
-
   const { cwd = process.cwd(), context, onMessage, timeout } = options
   const startTime = new Date()
   const transcript: string[] = []
   const filesChanged = new Set<string>()
 
-  let prompt = agent.system + '\n\n'
+  // Construct prompt with context budget awareness
+  let prompt = manifest.systemPrompt + '\n\n'
   
   if (context) {
-    prompt += `CONVERSATION CONTEXT:\n${context}\n\n`
+    const maxContextTokens = manifest.contextBudget?.maxSystemTokens ?? 2000
+    // Rough token estimation: 1 token ≈ 4 chars
+    const maxContextChars = maxContextTokens * 4
+    const truncatedContext = context.length > maxContextChars 
+      ? context.substring(0, maxContextChars) + '\n...(truncated)'
+      : context
+    
+    prompt += `CONVERSATION CONTEXT:\n${truncatedContext}\n\n`
   }
   
   prompt +=
@@ -67,12 +68,15 @@ export async function runSubagent(
   }
 
   try {
+    // Wire up MCP config
+    const mcpConfig = manifest.mcpConfig
+
     for await (const msg of execute({
       prompt,
       options: {
         cwd,
-        permissions: agent.permissions,
-        mcpConfig: agent.mcp,
+        permissions: manifest.permissions,
+        mcpConfig,
         dangerouslyAllowAll: false,
       },
       signal: controller.signal,
@@ -102,7 +106,7 @@ export async function runSubagent(
           transcript,
           filesChanged: Array.from(filesChanged).filter(Boolean),
           metadata: {
-            subagentName: name,
+            subagentId: manifest.id,
             goal: userGoal,
             startTime: startTime.toISOString(),
             endTime: endTime.toISOString(),
@@ -120,4 +124,38 @@ export async function runSubagent(
   }
 }
 
-export { createPermission } from '@sourcegraph/amp-sdk'
+/**
+ * Validate CLI tool availability (for future enforcement)
+ */
+export async function validateToolRequirements(manifest: SubagentManifest): Promise<{
+  valid: boolean
+  missing: string[]
+  warnings: string[]
+}> {
+  const missing: string[] = []
+  const warnings: string[] = []
+  
+  if (!manifest.toolRequirements?.cliAllowlist) {
+    return { valid: true, missing, warnings }
+  }
+  
+  // Check each required CLI tool
+  for (const tool of manifest.toolRequirements.cliAllowlist) {
+    try {
+      const { execSync } = await import('child_process')
+      execSync(`which ${tool.name}`, { stdio: 'ignore' })
+    } catch {
+      if (tool.installHint) {
+        warnings.push(`${tool.name} not found. Install: ${tool.installHint}`)
+      } else {
+        missing.push(tool.name)
+      }
+    }
+  }
+  
+  return {
+    valid: missing.length === 0,
+    missing,
+    warnings,
+  }
+}

@@ -23,7 +23,7 @@ const server = new Server(
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   const tools = Object.entries(subagents).map(([name, config]) => ({
     name: `subagent_${name}`,
-    description: config.system.split('\n')[0].replace('You are the ', '').replace(' subagent.', ''),
+    description: config.description || config.system.split('\n')[0].replace('You are the ', '').replace(' subagent.', ''),
     inputSchema: {
       type: 'object',
       properties: {

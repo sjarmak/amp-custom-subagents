@@ -6,19 +6,22 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "tsx src/cli.ts",
-    "mcp": "tsx src/mcp-server.ts",
+    "mcp": "tsx src/registry-mcp-server.ts",
+    "mcp:legacy": "tsx src/mcp-server.ts",
     "example:test-runner": "tsx src/examples/test-runner-example.ts",
     "example:migration": "tsx src/examples/migration-example.ts",
     "example:security": "tsx src/examples/security-example.ts",
     "example:documentation": "tsx src/examples/documentation-example.ts",
     "example:refactor": "tsx src/examples/refactor-example.ts",
-    "example:custom": "tsx src/examples/custom-agent-example.ts"
+    "example:custom": "tsx src/examples/custom-agent-example.ts",
+    "example:code-search": "tsx src/examples/code-search-example.ts",
+    "example:ado_librarian": "tsx src/examples/ado-librarian-example.ts"
   },
   "keywords": ["amp", "subagents", "ai", "sdk"],
   "author": "",
   "license": "MIT",
   "bin": {
-    "custom-subagents-mcp": "./src/mcp-server.ts"
+    "custom-subagents-mcp": "./bin/custom-subagents-mcp.js"
   },
   "dependencies": {
     "@sourcegraph/amp-sdk": "latest",
